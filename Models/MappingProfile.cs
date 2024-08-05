@@ -4,6 +4,7 @@ using School_Management_System.Models.UserX;
 using School_Management_System.Models.ContactInfoX;
 using School_Management_System.Models.ClassX;
 using School_Management_System.Models.StudentX;
+using School_Management_System.Models.TermX;
 
 namespace School_Management_System.Models
 {
@@ -21,6 +22,8 @@ namespace School_Management_System.Models
 
             CreateMap<Student, StudentDto>().ReverseMap();
             CreateMap<Student, StudentDtoUpdate>().ReverseMap();
+
+            CreateMap<Term, TermDTO>().ReverseMap();
 
         }
 

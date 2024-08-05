@@ -26,17 +26,24 @@ namespace School_Management_System.Controllers
 
         // GET: api/Students
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<StudentDto>>> GetStudents()
+        public async Task<ActionResult<IEnumerable<StudentDto>>> GetStudents([FromQuery]Guid? streamId=null)
         {
           if (_context.Students == null)
           {
               return NotFound();
           }
-
+          
             var query = _context.Students.AsQueryable();
 
-            return Ok(_mapper.Map<List<StudentDto>>(await _context.Students.ToListAsync()));
+            if (streamId != null){
+                query = query.Where(c => c.Stream.Id == streamId);
+            }
+
+            query = query.Include(c => c.Stream);
+
+            return Ok(_mapper.Map<List<StudentDto>>(await query.ToListAsync()));
         }
+
 
         // GET: api/Students/5
         [HttpGet("{id}")]

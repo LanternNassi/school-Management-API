@@ -6,6 +6,7 @@ using School_Management_System.Models.ContactInfoX;
 using School_Management_System.Models.ClassX;
 using School_Management_System.Models.StreamX;
 using School_Management_System.Models.StudentX;
+using School_Management_System.Models.TermX;
 
 namespace School_Management_System.Models
 {
@@ -21,6 +22,7 @@ namespace School_Management_System.Models
         public DbSet<Class> Classes { get; set; }
         public DbSet<StreamX.Stream> Streams { get; set; }
         public DbSet<Student> Students { get; set; }
+        public DbSet<Term> Terms { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -31,7 +33,7 @@ namespace School_Management_System.Models
             modelBuilder.Entity<Class>().HasQueryFilter(c => !c.DeletedAt.HasValue);
             modelBuilder.Entity<StreamX.Stream>().HasQueryFilter(c => !c.DeletedAt.HasValue);
             modelBuilder.Entity<Student>().HasQueryFilter(c => !c.DeletedAt.HasValue);
-
+            modelBuilder.Entity<Term>().HasQueryFilter(c => !c.DeletedAt.HasValue);
 
 
             base.OnModelCreating(modelBuilder);
@@ -60,6 +62,7 @@ namespace School_Management_System.Models
                     || e.Entity is Class
                     || e.Entity is StreamX.Stream
                     || e.Entity is Student
+                    || e.Entity is Term
                     )
                 .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified);
 

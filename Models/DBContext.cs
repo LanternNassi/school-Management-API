@@ -7,6 +7,9 @@ using School_Management_System.Models.ClassX;
 using School_Management_System.Models.StreamX;
 using School_Management_System.Models.StudentX;
 using School_Management_System.Models.TermX;
+using School_Management_System.Models.StudentFeesStructureX;
+using School_Management_System.Models.TransactionX;
+
 
 namespace School_Management_System.Models
 {
@@ -23,7 +26,8 @@ namespace School_Management_System.Models
         public DbSet<StreamX.Stream> Streams { get; set; }
         public DbSet<Student> Students { get; set; }
         public DbSet<Term> Terms { get; set; }
-
+        public DbSet<StudentFeesStructure> StudentFeesStructures { get; set; }
+        public DbSet<Transaction> Transactions { get; set; } 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -34,7 +38,8 @@ namespace School_Management_System.Models
             modelBuilder.Entity<StreamX.Stream>().HasQueryFilter(c => !c.DeletedAt.HasValue);
             modelBuilder.Entity<Student>().HasQueryFilter(c => !c.DeletedAt.HasValue);
             modelBuilder.Entity<Term>().HasQueryFilter(c => !c.DeletedAt.HasValue);
-
+            modelBuilder.Entity<StudentFeesStructure>().HasQueryFilter(c => !c.DeletedAt.HasValue);
+            modelBuilder.Entity<Transaction>().HasQueryFilter(c => !c.DeletedAt.HasValue);
 
             base.OnModelCreating(modelBuilder);
 
@@ -63,6 +68,8 @@ namespace School_Management_System.Models
                     || e.Entity is StreamX.Stream
                     || e.Entity is Student
                     || e.Entity is Term
+                    || e.Entity is StudentFeesStructure
+                    || e.Entity is Transaction
                     )
                 .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified);
 

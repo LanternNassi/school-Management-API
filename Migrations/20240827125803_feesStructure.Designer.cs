@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using School_Management_System.Models;
@@ -11,9 +12,11 @@ using School_Management_System.Models;
 namespace School_Management_System.Migrations
 {
     [DbContext(typeof(DBContext))]
-    partial class DBContextModelSnapshot : ModelSnapshot
+    [Migration("20240827125803_feesStructure")]
+    partial class feesStructure
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -224,34 +227,6 @@ namespace School_Management_System.Migrations
                     b.ToTable("Terms");
                 });
 
-            modelBuilder.Entity("School_Management_System.Models.TransactionX.Transaction", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("AddedAt")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("numeric");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<Guid>("StudentFeesStructureId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("StudentFeesStructureId");
-
-                    b.ToTable("Transactions");
-                });
-
             modelBuilder.Entity("School_Management_System.Models.UserGroupX.UserGroup", b =>
                 {
                     b.Property<Guid>("Id")
@@ -371,17 +346,6 @@ namespace School_Management_System.Migrations
                         .IsRequired();
 
                     b.Navigation("Stream");
-                });
-
-            modelBuilder.Entity("School_Management_System.Models.TransactionX.Transaction", b =>
-                {
-                    b.HasOne("School_Management_System.Models.StudentFeesStructureX.StudentFeesStructure", "StudentFeesStructure")
-                        .WithMany()
-                        .HasForeignKey("StudentFeesStructureId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("StudentFeesStructure");
                 });
 
             modelBuilder.Entity("School_Management_System.Models.UserX.User", b =>

@@ -19,5 +19,6 @@ namespace School_Management_System.Models.StreamX
         public string Name { get; set; }
         public string? More_info { get; set; }
         public Guid ClassId { get; set; }
+        public classInfo? Class { get; set; }
     }
 }

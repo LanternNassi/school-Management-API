@@ -15,7 +15,7 @@ namespace School_Management_System.Models.StudentX
         public Guid StreamId { get; set; }
 
         [ForeignKey("StreamId")]
-        public virtual Stream Stream { get; set; }
+        public virtual Stream Stream    { get; set; }
     }
 
     public class StudentDto : GeneralFields

@@ -33,16 +33,67 @@ namespace School_Management_System.Controllers
 
 		// GET: api/Terms/5
 		[HttpGet("{id}")]
-		public async Task<ActionResult<Term>> GetTerm(int id)
+		public async Task<IActionResult> GetTerm(
+			Guid id,
+			[FromQuery] bool includeAll = false
+		)
 		{
 			var term = await _context.Terms.FindAsync(id);
+
+			var fees_query = _context.StudentFeesStructures.Where(f => f.TermId == id).AsQueryable();
 
 			if (term == null)
 			{
 				return NotFound();
 			}
 
-			return term;
+
+			var termDTO = _mapper.Map<TermDTO>(term);
+
+			var term_activities = new{
+				term = termDTO
+			};
+
+			if (includeAll)
+			{
+
+				// Include all related entities
+				var meta_data = new {
+					total_term_fees = fees_query.Sum(f => f.Amount),
+					total_paid_fees = fees_query.Where(f => f.IsPaid).Sum(f => f.Amount),
+					total_unpaid_fees = fees_query.Where(f => !f.IsPaid).Sum(f => f.Amount),
+					total_students = fees_query.Count(),
+				};
+
+				var class_meta_data = new List<object>();
+
+				foreach (var xclass in _context.Classes.ToList())
+				{
+					var class_fees_query = fees_query.Where(f => f.Student.Stream.Class.Id == xclass.Id).AsQueryable();
+
+					class_meta_data.Add(new {
+						@class = xclass,
+						total_term_fees = class_fees_query.Sum(f => f.Amount),
+						total_paid_fees = class_fees_query.Where(f => f.IsPaid).Sum(f => f.Amount),
+						total_unpaid_fees = class_fees_query.Where(f => !f.IsPaid).Sum(f => f.Amount),
+						total_students = class_fees_query.Count(),
+					});
+					
+				}
+
+				
+
+				return Ok(new{
+					meta_data,
+					class_meta_data,
+					term = termDTO,
+				});
+
+
+			}
+
+
+			return Ok(term_activities);
 		}
 
 		// POST: api/Terms
@@ -82,7 +133,7 @@ namespace School_Management_System.Controllers
 				}
 			}
 
-			return NoContent();
+			return Ok();
 		}
 
 		// DELETE: api/Terms/5

@@ -1,6 +1,4 @@
 ﻿
-
-
 namespace School_Management_System.Models.UserGroupX
 {
     public class UserGroup : GeneralFields 

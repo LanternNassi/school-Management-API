@@ -27,18 +27,25 @@ namespace School_Management_System.Controllers
 
         // GET: api/Streams
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<StreamDto>>> GetStreams([FromQuery] Guid? Class = null)
+        public async Task<ActionResult<IEnumerable<StreamDto>>> GetStreams(
+            [FromQuery] Guid? Class = null,
+            [FromQuery] bool verbose = false
+        )
         {
           if (_context.Streams == null)
           {
               return NotFound();
           }
 
-            var query = _context.Streams.AsQueryable();
+            var query = _context.Streams.OrderBy(s => s.Class.Name).AsQueryable();
 
             if (Class != null)
             {
                 query = query.Where(c => c.Class.Id == Class);
+            }
+
+            if (verbose){
+                query = query.Include(c => c.Class);
             }
 
             return Ok(_mapper.Map<List<StreamDto>>(await query.ToListAsync()));

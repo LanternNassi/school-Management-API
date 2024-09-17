@@ -32,9 +32,17 @@ namespace School_Management_System.Controllers
               return NotFound();
           }
 
-          var query = _context.Classes.AsQueryable();
+          var query = _context.Classes.OrderBy(s => s.Name).AsQueryable();
 
-          return Ok(_mapper.Map<List<ClassDto>>(await query.ToListAsync()));
+          return Ok(_mapper.Map<List<ClassDto>>(await query.Select(c => new ClassDto{
+            Id = c.Id,
+            Name = c.Name,
+            More_info = c.More_info,
+            StreamCount = c.Streams.Count,
+            AddedAt = c.AddedAt,
+            UpdatedAt = c.UpdatedAt,
+            DeletedAt = c.DeletedAt,
+          }).ToListAsync()));
         }
 
         // GET: api/Classes/5

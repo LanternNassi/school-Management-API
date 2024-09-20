@@ -4,8 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using School_Management_System.Models.TermX;
+using School_Management_System.Models.StudentX;
 using School_Management_System;
 using School_Management_System.Models;
+
 using AutoMapper;
 
 namespace School_Management_System.Controllers
@@ -72,6 +74,7 @@ namespace School_Management_System.Controllers
 					var class_fees_query = fees_query.Where(f => f.Student.Stream.Class.Id == xclass.Id).AsQueryable();
 
 					class_meta_data.Add(new {
+						id  = xclass.Id,
 						@class = xclass,
 						total_term_fees = class_fees_query.Sum(f => f.Amount),
 						total_paid_fees = class_fees_query.Where(f => f.IsPaid).Sum(f => f.Amount),
@@ -100,10 +103,45 @@ namespace School_Management_System.Controllers
 		[HttpPost]
 		public async Task<ActionResult<Term>> PostTerm(Term term)
 		{
+
+			var active_term = _context.Terms.FirstOrDefault(t => t.IsActive);
+
+			if ((active_term != null)  && term.IsActive)
+			{
+				return BadRequest("There is already an active term");
+			}
+
 			_context.Terms.Add(term);
 			await _context.SaveChangesAsync();
 
 			return CreatedAtAction("GetTerm", new { id = term.Id }, term);
+		}
+
+		[HttpPost("{id}/add_students")]
+		public async Task<IActionResult> AddStudents(Guid id, List<Guid> studentIds)
+		{
+    		var term = await _context.Terms.Include(t => t.Students).FirstOrDefaultAsync(t => t.Id == id);
+
+			if (term == null)
+			{
+				return NotFound();
+			}
+
+			foreach (var studentId in studentIds)
+			{
+				var student = await _context.Students.FindAsync(studentId);
+
+				if (student == null)
+				{
+					return NotFound();
+				}
+
+				term.Students.Add(student);
+			}
+
+			await _context.SaveChangesAsync();
+
+			return Ok("Students added successfully");
 		}
 
 		// PUT: api/Terms/5
@@ -112,10 +150,35 @@ namespace School_Management_System.Controllers
 		{
 			if (id != term.Id)
 			{
-				return BadRequest();
+				return BadRequest("Term ID mismatch");
 			}
 
-			_context.Entry(term).State = EntityState.Modified;
+			var active_term = _context.Terms.FirstOrDefault(t => t.IsActive);
+			var term_to_update = await _context.Terms.FindAsync(id);
+
+			if (term_to_update == null)
+			{
+				return NotFound();
+			}
+
+			// If the term is being set to active, check if there's already an active term
+			if (term.IsActive && !term_to_update.IsActive)
+			{
+				if (active_term != null)
+				{
+					return BadRequest("There is already an active term");
+				}
+			}
+
+			// Update only the necessary fields
+			term_to_update.Name = term.Name;
+			term_to_update.Description = term.Description;
+			term_to_update.StartDate = term.StartDate;
+			term_to_update.EndDate = term.EndDate;
+			term_to_update.IsActive = term.IsActive;
+			
+
+			_context.Entry(term_to_update).State = EntityState.Modified;
 
 			try
 			{

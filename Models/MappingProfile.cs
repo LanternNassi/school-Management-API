@@ -28,7 +28,8 @@ namespace School_Management_System.Models
             CreateMap<Student, StudentDtoUpdate>().ReverseMap();
 
             CreateMap<Term, TermDTO>().ReverseMap();
-            
+            CreateMap<Term, TermDtoUpdate>().ReverseMap();
+
             CreateMap<StudentFeesStructure, StudentFeesStructureDto>().ReverseMap();
 
             CreateMap<Transaction, TransactionDto>().ReverseMap();

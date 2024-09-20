@@ -33,7 +33,7 @@ namespace School_Management_System.Controllers
               return NotFound();
           }
           
-            var query = _context.Students.AsQueryable();
+            var query = _context.Students.Include(s => s.Terms).AsQueryable();
 
             if (streamId != null){
                 query = query.Where(c => c.Stream.Id == streamId);
@@ -53,7 +53,7 @@ namespace School_Management_System.Controllers
           {
               return NotFound();
           }
-            var student = await _context.Students.FindAsync(id);
+            var student = await _context.Students.Include(s => s.Terms).FirstOrDefaultAsync(s => s.Id == id);
 
             if (student == null)
             {

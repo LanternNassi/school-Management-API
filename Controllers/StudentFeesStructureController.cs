@@ -11,6 +11,13 @@ using AutoMapper;
 
 namespace School_Management_System.Controllers
 {
+
+    public class StudentTermReq
+    {
+        public Guid classId {get; set;}
+        public decimal amount {get; set;}
+    }
+
     [Route("api/[controller]")]
     [ApiController]
     public class StudentFeesStructureController : ControllerBase
@@ -40,14 +47,15 @@ namespace School_Management_System.Controllers
             query = query.Include(c => c.Student);
             query = query.Include(c => c.Term);
 
-            if (studentId != null)
-            {
-                query = query.Where(c => c.StudentId == studentId);
-            }
-
+            
             if (termId != null)
             {
                 query = query.Where(c => c.TermId == termId);
+            }
+
+            if (studentId != null)
+            {
+                query = query.Where(c => c.StudentId == studentId);
             }
 
             return Ok(_mapper.Map<List<StudentFeesStructureDto>>(await query.ToListAsync()));
@@ -123,9 +131,60 @@ namespace School_Management_System.Controllers
         [HttpPost]
         public async Task<ActionResult<StudentFeesStructureDto>> PostStudentFeesStructure(StudentFeesStructureDto studentFeesStructureDto)
         {
+
+            var existing_struct =  _context.StudentFeesStructures
+                                    .Where(c => c.StudentId == studentFeesStructureDto.StudentId)
+                                    .Where(c => c.TermId == studentFeesStructureDto.TermId)
+                                    .FirstOrDefault();
+            if (existing_struct != null){
+                return BadRequest("Student Fees structure already exists");
+            }
             _context.StudentFeesStructures.Add(_mapper.Map<StudentFeesStructure>(studentFeesStructureDto));
             await _context.SaveChangesAsync();
             return Ok(studentFeesStructureDto);
+        }
+
+        [HttpPost("term/{term_id}")]
+        public async Task<IActionResult> PostStudentStructures(Guid term_id ,StudentTermReq streq)
+        {
+            var term = await _context.Terms.FindAsync(term_id);
+
+            if (term == null){
+                return BadRequest("Term doesnot exist");
+            }
+
+            var active_class = await _context.Classes.FindAsync(streq.classId);
+
+            if (active_class == null){
+                return BadRequest("Class doesnot exist");
+            }
+
+            var students = await _context.Students.Where(c => c.Stream.Class.Id == streq.classId).ToListAsync();
+            
+            foreach(var student in students){
+                var existing_struct =  _context.StudentFeesStructures
+                                            .Where(c => c.StudentId == student.Id)
+                                            .Where(c => c.TermId == term_id)
+                                            .FirstOrDefault();
+
+                if (existing_struct != null)
+                {
+                    existing_struct.Amount = streq.amount;
+                }else{
+                    _context.StudentFeesStructures.Add(new StudentFeesStructure {
+                        StudentId = student.Id,
+                        TermId = term_id,
+                        Amount = streq.amount,
+                        IsPaid = false,
+                    });
+                }
+                
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Ok("Student structures created successfully");
+
         }
 
         private bool StudentFeesStructureExists(Guid id)

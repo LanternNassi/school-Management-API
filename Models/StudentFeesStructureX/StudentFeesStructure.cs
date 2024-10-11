@@ -4,6 +4,7 @@ using School_Management_System.Models.TermX;
 
 namespace School_Management_System.Models.StudentFeesStructureX
 {
+    /// <summary>Its a relationship between the student and Fees structure for a specific term</summary>
     public class StudentFeesStructure : GeneralFields
     {
         public Guid Id { get; set; }

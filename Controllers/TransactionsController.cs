@@ -28,7 +28,8 @@ namespace School_Management_System.Controllers
         // GET: api/Transactions
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TransactionDto>>> GetTransactions(
-            [FromQuery] Guid? studentFeesStructureId
+            [FromQuery] Guid? studentFeesStructureId,
+            [FromQuery] Guid? studentId
         )
         {
             if (_context.Transactions == null)
@@ -42,6 +43,10 @@ namespace School_Management_System.Controllers
             if (studentFeesStructureId != null)
             {
                 query = query.Where(c => c.StudentFeesStructureId == studentFeesStructureId);
+            }
+
+            if (studentId != null){
+                query = query.Where(c => c.StudentFeesStructure.StudentId == studentId);
             }
 
             return Ok(_mapper.Map<List<TransactionDto>>(await query.ToListAsync()));
@@ -63,6 +68,20 @@ namespace School_Management_System.Controllers
         [HttpPost]
         public async Task<ActionResult<TransactionDto>> PostTransaction(TransactionDto transactionDto)
         {
+
+            // Check if the studentFeesStructure exists
+            var studentFeesStructure = await _context.StudentFeesStructures.FindAsync(transactionDto.StudentFeesStructureId);
+            if (studentFeesStructure == null){
+                return BadRequest("StudentFeesStructure does not exist");
+            }
+
+            // Get balance
+            var paid_transactions = _context.Transactions.Where(c => c.StudentFeesStructureId == transactionDto.StudentFeesStructureId).Sum(c => c.Amount);
+
+            if (studentFeesStructure.Amount < paid_transactions + transactionDto.Amount){
+                return BadRequest("Amount exceeds the fees structure amount");
+            }
+
             var transaction = _mapper.Map<Transaction>(transactionDto);
             _context.Transactions.Add(transaction);
             await _context.SaveChangesAsync();

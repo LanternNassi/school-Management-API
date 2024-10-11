@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
+using School_Management_System.Controllers;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,6 +28,10 @@ builder.Services.AddDbContext<DBContext>(options =>
 
 
 builder.Services.AddControllers();
+
+builder.Services.AddTransient<StudentsController>();
+builder.Services.AddTransient<TermsController>();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -95,6 +100,8 @@ var mapperConfig = new MapperConfiguration(mc =>
 
 IMapper mapper = mapperConfig.CreateMapper();
 builder.Services.AddSingleton(mapper);
+
+
 
 
 var app = builder.Build();

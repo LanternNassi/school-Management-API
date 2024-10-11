@@ -11,6 +11,7 @@ namespace School_Management_System.Models.TermX
         public bool IsActive { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
+        public bool IsPromotional { get; set;}
 
         public virtual ICollection<Student>? Students { get; set; }
 
@@ -24,6 +25,7 @@ namespace School_Management_System.Models.TermX
         public bool IsActive { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
+        public bool IsPromotional { get; set;}                      
         public List<StudentDtoUpdate>? Students { get; set; }
     }
 
@@ -35,5 +37,6 @@ namespace School_Management_System.Models.TermX
         public bool IsActive { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
+        public bool IsPromotional { get; set;}
     }
 }

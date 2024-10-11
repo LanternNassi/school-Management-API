@@ -7,6 +7,7 @@ using School_Management_System.Models.TermX;
 using School_Management_System.Models.StudentX;
 using School_Management_System;
 using School_Management_System.Models;
+using School_Management_System.Models.TransactionX;
 
 using AutoMapper;
 
@@ -59,11 +60,13 @@ namespace School_Management_System.Controllers
 			if (includeAll)
 			{
 
+				var transactionsQuery = _context.Transactions.Where(t => t.StudentFeesStructure.TermId == id).AsQueryable();
+
 				// Include all related entities
 				var meta_data = new {
 					total_term_fees = fees_query.Sum(f => f.Amount),
-					total_paid_fees = fees_query.Where(f => f.IsPaid).Sum(f => f.Amount),
-					total_unpaid_fees = fees_query.Where(f => !f.IsPaid).Sum(f => f.Amount),
+					total_paid_fees = transactionsQuery.Sum(t => t.Amount),
+					total_unpaid_fees = fees_query.Sum(f => f.Amount) - transactionsQuery.Sum(t => t.Amount),
 					total_students = fees_query.Count(),
 				};
 
@@ -72,13 +75,14 @@ namespace School_Management_System.Controllers
 				foreach (var xclass in _context.Classes.ToList())
 				{
 					var class_fees_query = fees_query.Where(f => f.Student.Stream.Class.Id == xclass.Id).AsQueryable();
+					var class_transactions_query = transactionsQuery.Where(t => t.StudentFeesStructure.Student.Stream.Class.Id == xclass.Id).AsQueryable();
 
 					class_meta_data.Add(new {
 						id  = xclass.Id,
 						@class = xclass,
 						total_term_fees = class_fees_query.Sum(f => f.Amount),
-						total_paid_fees = class_fees_query.Where(f => f.IsPaid).Sum(f => f.Amount),
-						total_unpaid_fees = class_fees_query.Where(f => !f.IsPaid).Sum(f => f.Amount),
+						total_paid_fees = class_transactions_query.Sum(t => t.Amount),
+						total_unpaid_fees = class_fees_query.Sum(f => f.Amount) - class_transactions_query.Sum(t => t.Amount),
 						total_students = class_fees_query.Count(),
 					});
 					
